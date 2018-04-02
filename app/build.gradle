@@ -10,6 +10,9 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+
+        // Enabling multidex support.
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,7 +21,7 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'OPEN_WEATHER_MAP_API_KEY', 'e2b6250aaf281051e85be9374fdf771f'
+        it.buildConfigField "String", 'OPEN_WEATHER_MAP_API_KEY', '"e2b6250aaf281051e85be9374fdf771f"'
     }
 }
 
