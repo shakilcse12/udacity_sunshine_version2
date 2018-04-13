@@ -15,9 +15,11 @@
  */
 package com.example.android.sunshine.app;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -25,7 +27,9 @@ import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
+import com.example.android.sunshine.app.data.WeatherProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,11 +109,38 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
      * @param lon the longitude of the city
      * @return the row ID of the added location.
      */
-    long addLocation(String locationSetting, String cityName, double lat, double lon) {
+    public long addLocation(String locationSetting, String cityName, double lat, double lon) {
         // Students: First, check if the location with this city name exists in the db
+        locationSetting = "Sunnydale, CA";
+        cityName = "Sunnydale";
+        lat = 34.425833;
+        lon = -119.714167;
+        long id = -1;
+
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[] {WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[] {locationSetting},
+                null);
+
         // If it exists, return the current ID
-        // Otherwise, insert it using the content resolver and the base URI
-        return -1;
+        if (cursor.moveToFirst()) {
+            id = cursor.getLong(cursor.getColumnIndex(WeatherContract.LocationEntry._ID));
+        }
+        else {// Otherwise, insert it using the content resolver and the base URI
+            ContentValues values = new ContentValues();
+            values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
+            values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, lon);
+            Uri uris = mContext.getContentResolver().insert(
+                    WeatherContract.LocationEntry.CONTENT_URI,
+                    values);
+            id = ContentUris.parseId(uris);
+        }
+        cursor.close();
+        return id;
     }
 
     /*

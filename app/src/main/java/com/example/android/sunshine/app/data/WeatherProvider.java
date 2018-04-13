@@ -210,7 +210,8 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        if (retCursor != null)
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
 
